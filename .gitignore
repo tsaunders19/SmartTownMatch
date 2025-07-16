@@ -1,0 +1,71 @@
+# My Git ignore template 
+
+# ------------------------
+# Python / Flask backend
+# ------------------------
+# Virtual env
+backend/.venv/
+
+# Compiled bytecode
+__pycache__/
+*.py[cod]
+
+# Build & dist
+*.egg-info/
+build/
+dist/
+
+# Test, coverage, cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# dotenv / secrets
+.env
+*.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ------------------------
+# Node / React frontend
+# ------------------------
+frontend/node_modules/
+frontend/.env*
+
+# Build artifacts
+frontend/build/
+
+# ------------------------
+# Data artifacts
+# ------------------------
+# Raw & processed datasets can be regenerated
+backend/data/raw/
+backend/data/processed/
+*.parquet
+*.pkl
+*.pickle
+
+# ------------------------
+# Reports / notebooks output
+# ------------------------
+backend/notebooks/.ipynb_checkpoints/
+
+# ------------------------
+# OS / Editor shit
+# ------------------------
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Log files
+*.log
+
+# My project and debug files
+READMETEMPLATE.md
+backend/src/debug_shapes.py
+backend/src/debug_xls.py
+debug.bat
