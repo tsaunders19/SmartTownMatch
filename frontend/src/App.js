@@ -91,7 +91,7 @@ function App() {
           
           <div className="form-group">
             <label htmlFor="cluster-select">1. Choose a lifestyle:</label>
-            <select id="cluster-select" value={cluster} onChange={e => setCluster(e.target.value)}>
+            <select id="cluster-select" value={cluster} style={{fontSize: 16}} onChange={e => setCluster(e.target.value)}>
               <option value="Suburb">Suburb</option>
               <option value="City">City</option>
               <option value="Rural">Rural</option>
