@@ -130,7 +130,7 @@ function App() {
           <ul className="recommendations-list">
             {Array.isArray(recommendations) && recommendations.map((town) => (
               <li key={town.TownName} className="recommendation-item">
-                <h3>{town.TownName}</h3>
+                <h3 className="town-header">{town.TownName}</h3>
                 <Score label="Match Score" value={town.MatchScore} low={town.MatchScoreLow} high={town.MatchScoreHigh} />
                 {town.County && <p><strong>County:</strong> {town.County}</p>}
                 <p><strong>Lifestyle:</strong> {town.ClusterLabel}</p>
