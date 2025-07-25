@@ -54,6 +54,7 @@
     margin-top: 0;
     margin-bottom: 20px;
     color: var(--primary-color);
+    font-size: 1.6rem;
   }
   
   .form-group {
@@ -64,6 +65,14 @@
     display: block;
     font-weight: bold;
     margin-bottom: 8px;
+    font-size: 1.2rem;
+  }
+
+  .preference-instructions {
+    font-size: 1.2rem; /* You can adjust this */
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
   }
   
   .form-group select,
@@ -95,6 +104,7 @@
     font-weight: bold;
     color: var(--primary-color);
     text-align: center;
+    font-size: 1.4rem;
   }
   
   button[type="submit"] {
@@ -102,7 +112,7 @@
     color: white;
     border: none;
     padding: 15px 30px;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: bold;
     border-radius: var(--border-radius);
     cursor: pointer;
@@ -151,7 +161,7 @@
   }
 
   .town-header {
-    background: linear-gradient(to right, #3b82f6, #60a5fa); /* Tailwind blue-500 to blue-400 */
+    background: #007bff; 
     color: white;
     padding: 10px 16px;
     border-radius: 12px;

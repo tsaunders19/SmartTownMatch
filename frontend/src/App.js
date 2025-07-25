@@ -91,14 +91,16 @@ function App() {
           
           <div className="form-group">
             <label htmlFor="cluster-select">1. Choose a lifestyle:</label>
-            <select id="cluster-select" value={cluster} style={{fontSize: 16}} onChange={e => setCluster(e.target.value)}>
+            <select id="cluster-select" value={cluster} style={{fontSize: 20}} onChange={e => setCluster(e.target.value)}>
               <option value="Suburb">Suburb</option>
               <option value="City">City</option>
               <option value="Rural">Rural</option>
             </select>
           </div>
 
-          <p>2. Rank what's important to you (1 = Not important, 5 = Very important):</p>
+          <p className="preference-instructions">
+            2. Rank what's important to you (1 = Not important, 5 = Very important):
+          </p>
           
           <div className="sliders-container">
             {Object.keys(weights).map(weightName => (
