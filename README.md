@@ -2,13 +2,6 @@
 
 SmartTownMatch CS539 ML Project
 
-> ⚠️ **Startup Warning**  
-> The React frontend may load before the Flask backend is fully initialized. **Wait until the backend terminal prints `Running on http://127.0.0.1:5000/` (or similar) before interacting with the site.**
-
-## TODO IMPORTANT (Frontend)
-
-- [ ] Implement a loading / splash screen that checks backend readiness before showing the main UI.
-
 ## Overview
 
 Project structure:
