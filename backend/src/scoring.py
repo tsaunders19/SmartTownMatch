@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 
 # NOTE TO SELF: Monte-Carlo ranking uncertainty
 # If *_ImputedStd columns exist for SafetyScore / EducationScore the function
@@ -31,6 +32,23 @@ def calculate_recommendations(candidate_towns_df, user_weights, top_n=10, n_draw
         'PopulationDensity_norm': 0,
     }
 
+    raw_to_norm = {
+        'MedianHomePrice': 'MedianHomePrice_norm',
+        'SafetyScore': 'SafetyScore_norm',
+        'EducationScore': 'EducationScore_norm',
+        'WalkScore': 'WalkScore_norm',
+        'AmenitiesScore': 'AmenitiesScore_norm',
+        'TransitScore': 'TransitScore_norm',
+        'BikeScore': 'BikeScore_norm',
+        'PopulationDensity': 'PopulationDensity_norm',
+    }
+
+    for raw_col, norm_col in raw_to_norm.items():
+        if norm_col not in candidate_towns_df.columns and raw_col in candidate_towns_df.columns:
+            values = candidate_towns_df[raw_col].fillna(candidate_towns_df[raw_col].median()).fillna(0)
+            scaler = MinMaxScaler()
+            candidate_towns_df[norm_col] = scaler.fit_transform(values.values.reshape(-1, 1))
+
     feature_directions = {f: d for f, d in base_feature_directions.items() if f in candidate_towns_df.columns}
 
     if not feature_directions:
@@ -56,8 +74,13 @@ def calculate_recommendations(candidate_towns_df, user_weights, top_n=10, n_draw
     preference_vector = []
     for feature in features_to_use:
         weight_key = feature.replace('_norm', '')
-        
         preference_vector.append(user_weights.get(weight_key, 0))
+
+    total_weight = sum(preference_vector)
+    if total_weight > 0:
+        preference_vector = [w / total_weight for w in preference_vector]
+    else:
+        preference_vector = [1 / len(preference_vector)] * len(preference_vector)
 
     n_towns = len(candidate_towns_df)
     all_scores = np.zeros((n_towns, n_draws))

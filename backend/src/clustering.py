@@ -171,6 +171,27 @@ def run_clustering(
 
     df["ClusterLabel"] = _map_cluster_to_label(df)
 
+    try:
+        from sklearn.metrics import adjusted_rand_score
+
+        rng_bs = np.random.default_rng(RANDOM_STATE)
+        n_boot = 20
+        ari_scores = []
+        base_labels = df["Cluster"].values
+        for _ in range(n_boot):
+            sample_idx = rng_bs.choice(len(df), size=len(df), replace=True)
+            sample_feats = df.iloc[sample_idx][norm_cols]
+            bs_kmeans = KMeans(n_clusters=final_k, random_state=RANDOM_STATE, n_init="auto").fit(sample_feats)
+            bs_labels = bs_kmeans.predict(df[norm_cols])
+            ari_scores.append(adjusted_rand_score(base_labels, bs_labels))
+
+        print(
+            f"Cluster stability (ARI over {n_boot} bootstraps): "
+            f"mean={np.mean(ari_scores):.3f} ± {np.std(ari_scores):.3f}"
+        )
+    except Exception as exc:
+        print(f"[stability] WARN: Could not compute bootstrap ARI ({exc}). Skipping.")
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(output_path, index=False)
     print(f"Saved clustered dataset to '{output_path}'.")

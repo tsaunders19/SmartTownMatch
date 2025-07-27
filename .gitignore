@@ -41,8 +41,6 @@ frontend/build/
 # ------------------------
 # Raw & processed datasets can be regenerated
 backend/data/raw/
-backend/data/processed/
-*.parquet
 *.pkl
 *.pickle
 
@@ -64,8 +62,13 @@ Thumbs.db
 # Log files
 *.log
 
+# Cache
+.cache/
+/backend/cache
+
 # My project and debug files
 READMETEMPLATE.md
 backend/src/debug_shapes.py
 backend/src/debug_xls.py
 debug.bat
+

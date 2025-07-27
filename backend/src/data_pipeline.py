@@ -23,6 +23,7 @@ import logging
 import zipfile
 import fnmatch
 import re
+import math
 
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
 logger = logging.getLogger(__name__)
@@ -291,7 +292,8 @@ def _walk_score_request(lat: float, lon: float, address: str) -> Dict[str, Optio
         "bike": 1,
         "wsapikey": WALK_SCORE_API_KEY,
     }
-    for attempt in range(3):
+    max_attempts = 5
+    for attempt in range(max_attempts):
         try:
             if attempt > 0:
                 print(f"[walkscore] Retry {attempt} for ({lat:.4f}, {lon:.4f}) …")
@@ -299,21 +301,91 @@ def _walk_score_request(lat: float, lon: float, address: str) -> Dict[str, Optio
             r = requests.get(url, params=params, timeout=25)
             r.raise_for_status()
             data = r.json()
-            result = {
-                "walk": data.get("walkscore"),
-                "transit": (data.get("transit") or {}).get("score"),
-                "bike": (data.get("bike") or {}).get("score"),
-            }
-            _API_CACHE[cache_key] = result
-            _save_cache()
-            return result
+
+            status_code = data.get("status")
+            if status_code == 1:
+                result = {
+                    "walk": data.get("walkscore"),
+                    "transit": (data.get("transit") or {}).get("score"),
+                    "bike": (data.get("bike") or {}).get("score"),
+                }
+                _API_CACHE[cache_key] = result
+                _save_cache()
+                return result
+
+            elif status_code == 2:
+                print("[walkscore] Status 2 (being calculated). Retrying later …")
+                time.sleep(2) 
+                continue
+            else:
+                print(
+                    f"[walkscore] Status {status_code} – storing as missing."
+                )
+                result = {"walk": None, "transit": None, "bike": None}
+                _API_CACHE[cache_key] = result
+                _save_cache()
+                return result
         except Exception as exc:
             print(f"[walkscore] WARN: {exc}")
             time.sleep(1 + attempt)
 
-    _API_CACHE[cache_key] = {"walk": None, "transit": None, "bike": None}
-    _save_cache()
+    print("[walkscore] Exhausted retries. Returning missing scores without caching.")
     return {"walk": None, "transit": None, "bike": None}
+
+def _osm_based_scores(lat: float, lon: float, radius_m: int = 3000) -> Dict[str, float]:
+    """Compute open-data walk, transit and bike proxies using OSM. Default radius is 3 km 
+    Returns raw (unscaled) metrics which will later be scaled 0-100 across dataset.
+    • walk_raw      = intersection density (deg>=3) per km²
+    • transit_raw   = # transit / rail / bus stops within radius
+    • bike_raw      = total length (km) of cycleways within radius
+    """
+    try:
+        import osmnx as ox
+        import geopandas as gpd
+
+        # Walkability
+        G = ox.graph_from_point((lat, lon), dist=radius_m, network_type="walk", simplify=True)
+        gdfs = ox.graph_to_gdfs(G, nodes=True, edges=False)
+        if isinstance(gdfs, tuple):
+            nodes_gdf = gdfs[0]
+        else:
+            nodes_gdf = gdfs
+
+        intersec = nodes_gdf[nodes_gdf["street_count"].fillna(0) >= 3]
+        area_km2 = math.pi * (radius_m / 1000) ** 2
+        walk_raw = len(intersec) / area_km2 if area_km2 > 0 else 0
+
+        # Transit stops
+        tags_transit_nodes = [
+            {"public_transport": "platform"},
+            {"public_transport": "stop_position"},
+            {"railway": ["station", "halt", "tram_stop", "subway_entrance"]},
+            {"highway": "bus_stop"},
+            {"amenity": "bus_station"},
+        ]
+
+        transit_raw = 0
+        for tag_dict in tags_transit_nodes:
+            try:
+                g = ox.features_from_point((lat, lon), dist=radius_m, tags=tag_dict)
+                cnt = len(g)
+                transit_raw += cnt
+            except Exception:
+                pass
+
+        # Bike infrastructure length
+        try:
+            G_bike = ox.graph_from_point((lat, lon), dist=radius_m, network_type="bike", simplify=True)
+            bike_raw = sum(
+                d.get("length", 0) for _, _, d in G_bike.edges(data=True)
+            ) / 1000  # km
+        except Exception:
+            bike_raw = 0
+
+        return {"walk_raw": walk_raw, "transit_raw": transit_raw, "bike_raw": bike_raw}
+    except Exception as exc:
+        print(f"[osm_fallback] ERROR: {exc}. Returning zero metrics.")
+        return {"walk_raw": 0, "transit_raw": 0, "bike_raw": 0}
 
 
 def add_walk_scores(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -323,15 +395,57 @@ def add_walk_scores(df: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     walk_scores = []
     transit_scores = []
     bike_scores = []
+
+    fallback_raw = [] 
+
     for _, row in df.iterrows():
         res = _walk_score_request(row["lat"], row["lon"], row["TownName"])
-        walk_scores.append(res.get("walk"))
-        transit_scores.append(res.get("transit"))
-        bike_scores.append(res.get("bike"))
-        time.sleep(0.2)
+
+        if all(v is None for v in res.values()):
+            raw_metrics = _osm_based_scores(row["lat"], row["lon"])
+            print(
+                f"[osm_fallback] {row['TownName']}: walk_raw={raw_metrics['walk_raw']:.2f}, "
+                f"transit_raw={raw_metrics['transit_raw']}, bike_raw={raw_metrics['bike_raw']:.2f}"
+            )
+            fallback_raw.append(raw_metrics)
+            walk_scores.append(None)
+            transit_scores.append(None)
+            bike_scores.append(None)
+        else:
+            fallback_raw.append(None)
+            walk_scores.append(res.get("walk"))
+            transit_scores.append(res.get("transit"))
+            bike_scores.append(res.get("bike"))
+        time.sleep(0.1)
+
+
+    walk_raw_vals = [m["walk_raw"] for m in fallback_raw if m]
+    transit_raw_vals = [m["transit_raw"] for m in fallback_raw if m]
+    bike_raw_vals = [m["bike_raw"] for m in fallback_raw if m]
+
+    def _linear_scale(x, vmin, vmax):
+        if vmax == vmin:
+            return 0
+        return int(100 * (x - vmin) / (vmax - vmin))
+
+    walk_min, walk_max = (min(walk_raw_vals), max(walk_raw_vals)) if walk_raw_vals else (0, 1)
+    transit_min, transit_max = (min(transit_raw_vals), max(transit_raw_vals)) if transit_raw_vals else (0, 1)
+    bike_min, bike_max = (min(bike_raw_vals), max(bike_raw_vals)) if bike_raw_vals else (0, 1)
+
+    for idx, raw in enumerate(fallback_raw):
+        if raw is None:
+            continue
+        if walk_scores[idx] is None:
+            walk_scores[idx] = _linear_scale(raw["walk_raw"], walk_min, walk_max)
+        if transit_scores[idx] is None:
+            transit_scores[idx] = _linear_scale(raw["transit_raw"], transit_min, transit_max)
+        if bike_scores[idx] is None:
+            bike_scores[idx] = _linear_scale(raw["bike_raw"], bike_min, bike_max)
+
     df["WalkScore"] = walk_scores
     df["TransitScore"] = transit_scores
     df["BikeScore"] = bike_scores
+
     return df
 
 def _places_count(lat: float, lon: float, place_type: str, radius_m: int = 5000) -> int:
@@ -852,15 +966,27 @@ def build_master_dataframe(census_api_key: Optional[str] = None) -> gpd.GeoDataF
 def add_normalised_columns(df: pd.DataFrame, cols_to_norm: List[str]) -> pd.DataFrame:
     """Normalise specified columns using MinMaxScaler. Handles NaNs."""
     for col in cols_to_norm:
-        scaler = MinMaxScaler()
-        if col in df.columns and pd.api.types.is_numeric_dtype(df[col]):
-            if df[col].isnull().any():
-                median_val = df[col].median()
-                df[col] = df[col].fillna(median_val)
-            
-            df[f"{col}_norm"] = scaler.fit_transform(df[[col]])
-        else:
+        if col not in df.columns or not pd.api.types.is_numeric_dtype(df[col]):
             print(f"[normalise] WARN: Column '{col}' not found or not numeric. Skipping.")
+            continue
+
+        series = df[col].copy()
+
+        if col == "MedianHomePrice":
+            series = np.log10(series.clip(lower=1))  
+
+        lower, upper = np.nanpercentile(series, [5, 95])
+        series = series.clip(lower, upper)
+
+        if series.isnull().any():
+            series = series.fillna(series.median())
+
+        if series.min() >= 0 and series.max() <= 1 and col in {"SafetyScore", "EducationScore"}:
+            df[f"{col}_norm"] = series
+        else:
+            scaler = MinMaxScaler()
+            df[f"{col}_norm"] = scaler.fit_transform(series.values.reshape(-1, 1))
+
     return df
 
 

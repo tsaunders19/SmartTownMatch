@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 const Score = ({ label, value, imputed, low, high }) => {
   if (value === null || value === undefined) return null;
   
-  const displayValue = Math.round(value);
+  const displayValue = Math.round(value * 10) / 10;
 
   return (
     <p className="score-item">
@@ -61,7 +61,7 @@ const Results = ({ recommendations, error }) => {
           >
             <h3 className="town-header">{town.TownName}</h3>
             <div className="town-details">
-              <Score label="Match Score" value={town.MatchScore} low={town.MatchScoreLow} high={town.MatchScoreHigh} />
+              <Score label="Match Score" value={town.MatchScore * 100} low={town.MatchScoreLow * 100} high={town.MatchScoreHigh * 100} />
               {town.County && <p><strong>County:</strong> {town.County}</p>}
               <p><strong>Lifestyle:</strong> {town.ClusterLabel}</p>
               <p><strong>Median Home Price:</strong> ${new Intl.NumberFormat().format(town.MedianHomePrice)}</p>

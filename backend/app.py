@@ -20,7 +20,7 @@ if not DATA_PATH.exists():
         df_master.to_parquet(DATA_PATH, index=False)
         print(f"[startup] Saved fresh dataset to {DATA_PATH} (rows={len(df_master)})")
 
-        run_clustering(DATA_PATH, DATA_PATH, k=3, validate_k=False)
+        run_clustering(DATA_PATH, DATA_PATH, k=None, validate_k=True)
     except Exception as exc:
         print(f"[startup] ERROR during automatic data build: {exc}")
         print("The API will start with empty dataset. Run 'make data cluster' later.")
@@ -30,7 +30,7 @@ try:
     if 'ClusterLabel' not in master_town_data.columns:
         print("[startup] ClusterLabel missing; running clustering step …")
         try:
-            run_clustering(DATA_PATH, DATA_PATH, k=3, validate_k=False)
+            run_clustering(DATA_PATH, DATA_PATH, k=None, validate_k=True)
             master_town_data = pd.read_parquet(DATA_PATH)
         except Exception as exc:
             print(f"[startup] ERROR: clustering failed ({exc}). Exiting application.")
