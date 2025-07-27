@@ -1,0 +1,122 @@
+.preferences-form {
+  background-color: var(--form-background-color);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+  transition: background-color 0.3s ease;
+}
+
+.form-section {
+  margin-bottom: 48px;
+}
+
+.form-section-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.form-section-description {
+  font-size: 16px;
+  color: var(--text-color-secondary);
+  margin: 0 0 24px 0;
+}
+
+.lifestyle-selector {
+  display: flex;
+  gap: 16px;
+}
+
+.lifestyle-btn {
+  flex: 1;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.lifestyle-btn.active,
+.lifestyle-btn:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.sliders-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 48px;
+}
+
+.slider-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.slider-group input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: var(--slider-track-color);
+  outline: none;
+  opacity: 0.7;
+  transition: opacity .2s;
+}
+
+.slider-group input[type="range"]:hover {
+  opacity: 1;
+}
+
+.slider-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  cursor: pointer;
+}
+
+.slider-group input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  cursor: pointer;
+}
+
+.slider-group span {
+  text-align: right;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: var(--primary-color-dark);
+} 

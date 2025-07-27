@@ -1,0 +1,38 @@
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logo h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.logo p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.theme-toggle button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 24px;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle button:hover {
+  background-color: var(--hover-color);
+} 

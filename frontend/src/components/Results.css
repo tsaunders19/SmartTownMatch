@@ -1,0 +1,73 @@
+.results-container {
+  margin-top: 48px;
+}
+
+.results-title {
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.recommendations-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.recommendation-item {
+  background-color: var(--form-background-color);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.recommendation-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.town-header {
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  font-size: 20px;
+}
+
+.town-details p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.imputed-icon {
+  margin-left: 8px;
+  cursor: help;
+}
+
+.confidence-interval {
+  margin-left: 8px;
+  font-style: italic;
+  color: var(--text-color-secondary);
+}
+
+.error-message {
+  color: #d9534f;
+  text-align: center;
+  font-size: 16px;
+  padding: 16px;
+  background-color: rgba(217, 83, 79, 0.1);
+  border: 1px solid rgba(217, 83, 79, 0.2);
+  border-radius: 8px;
+} 
