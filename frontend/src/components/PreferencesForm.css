@@ -122,22 +122,39 @@
 
 .submit-btn {
   width: 100%;
-  padding: 16px;
+  padding: 12px 24px;
   font-size: 18px;
   font-weight: 600;
   color: #fff;
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 9999px; 
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 .submit-btn:disabled {
-  background-color: #ccc;
+  background: var(--border-color);
   cursor: not-allowed;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: var(--primary-color-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.submit-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-color-dark);
+}
+
+.preferences-form .submit-btn {
+  border-radius: 9999px !important;
+  padding: 12px 24px;
 } 
