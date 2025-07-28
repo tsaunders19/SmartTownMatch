@@ -9,7 +9,10 @@ import Results from './components/Results';
 function App() {
   const [backendReady, setBackendReady] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [cluster, setCluster] = useState('Suburb');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [cluster, setCluster] = useState(() => {
+    return sessionStorage.getItem('selectedCluster') || 'Suburb';
+  });
   const [weights, setWeights] = useState({
     affordability: 3,
     safety: 3,
@@ -23,6 +26,10 @@ function App() {
   const [recommendations, setRecommendations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    sessionStorage.setItem('selectedCluster', cluster);
+  }, [cluster]);
 
   useEffect(() => {
     const checkBackend = async () => {
@@ -91,17 +98,44 @@ function App() {
 
   return (
     <div className="App">
-      <Header isDarkMode={isDarkMode} onToggleDarkMode={() => setIsDarkMode(!isDarkMode)} />
+      <Header
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+      />
       <main className="App-main">
-        <PreferencesForm
-          cluster={cluster}
-          setCluster={setCluster}
-          weights={weights}
-          handleSliderChange={handleSliderChange}
-          handleSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
-        <Results recommendations={recommendations} error={error} />
+        <aside className={`sidebar ${isSidebarOpen ? 'open' : 'collapsed'}`}> 
+          {isSidebarOpen && (
+            <button
+              type="button"
+              className="sidebar-handle"
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              ❮
+            </button>
+          )}
+          <PreferencesForm
+            cluster={cluster}
+            setCluster={setCluster}
+            weights={weights}
+            handleSliderChange={handleSliderChange}
+            handleSubmit={handleSubmit}
+            isLoading={isLoading}
+          />
+        </aside>
+
+        {!isSidebarOpen && (
+          <button
+            type="button"
+            className="sidebar-expand"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            ❯
+          </button>
+        )}
+
+        <section className="content">
+          <Results recommendations={recommendations} error={error} />
+        </section>
       </main>
       <footer className="App-footer">
         <p>Made by An Phan, Tiffany Saunders and Palanivel Sathiya Moorthy for CS 539</p>

@@ -35,4 +35,23 @@
 
 .theme-toggle button:hover {
   background-color: var(--hover-color);
+}
+
+.sidebar-toggle button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  font-size: 24px;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  margin-right: 16px;
+}
+
+.sidebar-toggle button:hover {
+  background-color: var(--hover-color);
 } 

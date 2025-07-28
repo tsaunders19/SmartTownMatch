@@ -1,5 +1,6 @@
 import React from 'react';
 import Slider from './Slider';
+import LifestyleSelect from './LifestyleSelect';
 
 const PreferencesForm = ({ cluster, setCluster, weights, handleSliderChange, handleSubmit, isLoading }) => {
   return (
@@ -9,17 +10,8 @@ const PreferencesForm = ({ cluster, setCluster, weights, handleSliderChange, han
         <p className="form-section-description">
           Select the type of community that best fits your daily life.
         </p>
-        <div className="lifestyle-selector">
-          {['Suburb', 'City', 'Rural'].map(type => (
-            <button
-              type="button"
-              key={type}
-              className={`lifestyle-btn ${cluster === type ? 'active' : ''}`}
-              onClick={() => setCluster(type)}
-            >
-              {type}
-            </button>
-          ))}
+        <div className="lifestyle-dropdown">
+          <LifestyleSelect value={cluster} onChange={setCluster} />
         </div>
       </div>
 
