@@ -10,7 +10,7 @@ const Footer = () => {
           <ul>
             <li>
               <a
-                href="https://sites.google.com/view/smarttownmatch-research"
+                href="https://sites.google.com/view/smarttownmatch/home?authuser=0"
                 target="_blank"
                 rel="noopener noreferrer"
               >
