@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './services/api';
 import './App.css';
 import LoadingScreen from './components/LoadingScreen';
 import Header from './components/Header';
@@ -34,7 +34,7 @@ function App() {
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        await axios.get('/api/health');
+        await api.get('/api/health');
         setBackendReady(true);
       } catch (e) {
         console.error("Backend not ready, retrying...", e);
@@ -76,7 +76,7 @@ function App() {
         }
       };
 
-      const response = await axios.post('/api/recommendations', requestPayload);
+      const response = await api.post('/api/recommendations', requestPayload);
       if (Array.isArray(response.data)) {
         setRecommendations(response.data);
       } else {
