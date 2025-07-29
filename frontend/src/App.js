@@ -5,6 +5,7 @@ import LoadingScreen from './components/LoadingScreen';
 import Header from './components/Header';
 import PreferencesForm from './components/PreferencesForm';
 import Results from './components/Results';
+import Footer from './components/Footer';
 
 function App() {
   const [backendReady, setBackendReady] = useState(false);
@@ -137,9 +138,7 @@ function App() {
           <Results recommendations={recommendations} error={error} />
         </section>
       </main>
-      <footer className="App-footer">
-        <p>Made by An Phan, Tiffany Saunders and Palanivel Sathiya Moorthy for CS 539</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
